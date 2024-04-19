@@ -1,26 +1,30 @@
 #include "fuzzer_i.h"
 #include "helpers/fuzzer_types.h"
 
-static bool fuzzer_app_custom_event_callback(void* context, uint32_t event) {
+static bool fuzzer_app_custom_event_callback(void *context, uint32_t event)
+{
     furi_assert(context);
-    PacsFuzzerApp* app = context;
+    PacsFuzzerApp *app = context;
     return scene_manager_handle_custom_event(app->scene_manager, event);
 }
 
-static bool fuzzer_app_back_event_callback(void* context) {
+static bool fuzzer_app_back_event_callback(void *context)
+{
     furi_assert(context);
-    PacsFuzzerApp* app = context;
+    PacsFuzzerApp *app = context;
     return scene_manager_handle_back_event(app->scene_manager);
 }
 
-static void fuzzer_app_tick_event_callback(void* context) {
+static void fuzzer_app_tick_event_callback(void *context)
+{
     furi_assert(context);
-    PacsFuzzerApp* app = context;
+    PacsFuzzerApp *app = context;
     scene_manager_handle_tick_event(app->scene_manager);
 }
 
-PacsFuzzerApp* fuzzer_app_alloc() {
-    PacsFuzzerApp* app = malloc(sizeof(PacsFuzzerApp));
+PacsFuzzerApp *fuzzer_app_alloc()
+{
+    PacsFuzzerApp *app = malloc(sizeof(PacsFuzzerApp));
 
     app->fuzzer_state.menu_index = 0;
     app->fuzzer_state.proto_index = 0;
@@ -86,7 +90,8 @@ PacsFuzzerApp* fuzzer_app_alloc() {
     return app;
 }
 
-void fuzzer_app_free(PacsFuzzerApp* app) {
+void fuzzer_app_free(PacsFuzzerApp *app)
+{
     furi_assert(app);
 
     // Remote view
@@ -130,9 +135,10 @@ void fuzzer_app_free(PacsFuzzerApp* app) {
     free(app);
 }
 
-int32_t fuzzer_start_ibtn(void* p) {
+int32_t fuzzer_start_ibtn(void *p)
+{
     UNUSED(p);
-    PacsFuzzerApp* fuzzer_app = fuzzer_app_alloc();
+    PacsFuzzerApp *fuzzer_app = fuzzer_app_alloc();
 
     FuzzerConsts app_const = {
         .custom_dict_folder = "/ext/ibtnfuzzer",
@@ -150,9 +156,10 @@ int32_t fuzzer_start_ibtn(void* p) {
     return 0;
 }
 
-int32_t fuzzer_start_rfid(void* p) {
+int32_t fuzzer_start_rfid(void *p)
+{
     UNUSED(p);
-    PacsFuzzerApp* fuzzer_app = fuzzer_app_alloc();
+    PacsFuzzerApp *fuzzer_app = fuzzer_app_alloc();
 
     FuzzerConsts app_const = {
         .custom_dict_folder = "/ext/rfidfuzzer",
@@ -161,6 +168,27 @@ int32_t fuzzer_start_rfid(void* p) {
         .path_key_folder = "/ext/lfrfid",
         .key_icon = &I_125_10px,
         .file_prefix = "RFID",
+    };
+    fuzzer_app->fuzzer_const = &app_const;
+
+    view_dispatcher_run(fuzzer_app->view_dispatcher);
+
+    fuzzer_app_free(fuzzer_app);
+    return 0;
+}
+
+int32_t fuzzer_start_mifare(void *p)
+{
+    UNUSED(p);
+    PacsFuzzerApp *fuzzer_app = fuzzer_app_alloc();
+
+    FuzzerConsts app_const = {
+        .custom_dict_folder = "/ext/mifare_fuzzer",
+        .custom_dict_extension = ".txt",
+        .key_extension = ".nfc",
+        .path_key_folder = "/ext/nfc",
+        .key_icon = &I_Nfc_10px,
+        .file_prefix = "NFC",
     };
     fuzzer_app->fuzzer_const = &app_const;
 
